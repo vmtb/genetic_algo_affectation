@@ -29,15 +29,15 @@ public class Worker  /* this class represents a UPC worker */
 	{
 		this.ID = ID;
 		this.cpuInfo = cpuInfo;
-		this.availableMemorySize = availableMemorySize;
-		this.availableDiskSize = availableDiskSize;
+		this.availableMemorySize = availableMemorySize; 
+		this.availableDiskSize = availableDiskSize; 
 		this.connectionBandwidthWithMasterPC = connectionBandwidthWithMasterPC;
 		this.connectionDelayWithMasterPC = connectionDelayWithMasterPC;
 		this.originalAvailableMemorySize = originalAvailableMemorySize;
-		this.originalAvailableDiskSize = originalAvailableDiskSize;
-		this.originalConnectionBandwidthWithMasterPC = originalConnectionBandwidthWithMasterPC;
-		this.originalConnectionDelayWithMasterPC = originalConnectionDelayWithMasterPC;
-		this.assignedJobs = assignedJobs;
+		this.originalAvailableDiskSize = originalAvailableDiskSize;								
+		this.originalConnectionBandwidthWithMasterPC = originalConnectionBandwidthWithMasterPC;  
+		this.originalConnectionDelayWithMasterPC = originalConnectionDelayWithMasterPC;      
+		this.assignedJobs = assignedJobs;   
 		this.cpuUsageInPercentage = cpuUsageInPercentage;
 		this.name = name;
 		this.currentGlobalCPUTime = currentGlobalCPUTime;

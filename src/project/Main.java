@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -18,213 +19,28 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		System.out.println("Start...");
+		
 		try {
-			Reader csvData = new FileReader(".\\data\\workers.csv");
-			System.out.println("----");
-			CSVParser parser;
-			try
-			{
-				parser = CSVParser.parse(csvData, CSVFormat.EXCEL);
-				List<CSVRecord> csvRecord = parser.getRecords();
-				int workerPCNameColumn = 0, availableCPUCoreNumberColumn = 0, cpuFamilyNameColumn = 0, cpuDenominationColumn = 0, availableMemorySizeColumn = 0;
-				int availableDiskSizeColumn = 0, connectionBandwidthWithMasterPCColumn = 0, connectionDelayWithMasterPCColumn = 0, cpuClockRateColumn = 0;
-				
-				for (int csvFileLine = 0; csvFileLine < csvRecord.size(); ++csvFileLine)
-				{
-					if (csvFileLine == 0)  /* we first get the CSV file column indexes thanks to column names available on the first CSV file line */
-					{
-						for (int csvFileColumn = 0; csvFileColumn < csvRecord.get(csvFileLine).size(); ++csvFileColumn)
-						{
-							if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("worker pc name"))
-							{
-								workerPCNameColumn = csvFileColumn;
-							}
-							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("available cpu core number"))
-							{
-								availableCPUCoreNumberColumn = csvFileColumn;
-							}
-							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("cpu family name"))
-							{
-								cpuFamilyNameColumn = csvFileColumn;
-							}
-							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("cpu denomination"))
-							{
-								cpuDenominationColumn = csvFileColumn;
-							}
-							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("cpu clock rate"))
-							{
-								cpuClockRateColumn = csvFileColumn;
-							}
-							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("available memory size"))
-							{
-								availableMemorySizeColumn = csvFileColumn;
-							}
-							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("available disk size"))
-							{
-								availableDiskSizeColumn = csvFileColumn;
-							}
-							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("connection bandwidth with master pc"))
-							{
-								connectionBandwidthWithMasterPCColumn = csvFileColumn;
-							}
-							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("connection delay with master pc"))
-							{
-								connectionDelayWithMasterPCColumn = csvFileColumn;
-							}
-						}
-						
-						if (workerPCNameColumn == 0 && (availableCPUCoreNumberColumn == 0 || cpuFamilyNameColumn == 0 || cpuDenominationColumn == 0 || availableMemorySizeColumn == 0
-								|| availableDiskSizeColumn == 0 || connectionBandwidthWithMasterPCColumn == 0 || connectionDelayWithMasterPCColumn == 0 || cpuClockRateColumn == 0))
-						{
-							System.out.println("Some column headers are missing in your workers CSV file. Please make sure your file complies with the defined standards and try again.");
-							return;
-						}
-					}
-					else  /* we get and process each cell data thanks to column indexes and the current CSV file line we're dealing with */
-					{
-						CPU cpuInfo = new CPU();
-						SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-						Worker newWorker = new Worker();  /* we create a new worker for each new CSV file line and populate it with that line's data */
-						double availableMemorySize = 0.0, availableDiskSize = 0.0, connectionBandwidthWithMasterPC = 0.0, connectionDelayWithMasterPC = 0.0, cpuClockRate = 0.0;
-						
-						/* we set the new worker's attributes based on the current CSV file line data */
-						newWorker.setID(csvFileLine);
-						newWorker.setName(csvRecord.get(csvFileLine).get(workerPCNameColumn));
-						newWorker.setCPUUsageInPercentage(0.0);
-						newWorker.setCurrentGlobalCPUTime(0.0);
-						
-						/* we accept GHz, MHz, KHz or Hz data and convert them all into Hertz */
-						if (csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().toLowerCase().contains("ghz") )
-						{
-							cpuClockRate = 1000 * 1000 * 1000 * Double.valueOf(csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().trim().split("GHZ|GHz|GhZ|Ghz|gHZ|gHz|ghZ|ghz")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().toLowerCase().contains("mhz") )
-						{
-							cpuClockRate = 1000 * 1000 * Double.valueOf(csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().trim().split("MHZ|MHz|MhZ|Mhz|mHZ|mHz|mhZ|mhz")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().toLowerCase().contains("khz"))
-						{
-							cpuClockRate = 1000 * Double.valueOf(csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().trim().split("KHZ|KHz|KhZ|Khz|kHZ|kHz|khZ|khz")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().toLowerCase().contains("hz"))
-						{
-							cpuClockRate = Double.valueOf(csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().trim().split("HZ|Hz|hZ|hz")[0].trim());
-						}
-						
-						cpuInfo.setNumberOfCores(Integer.valueOf(csvRecord.get(csvFileLine).get(availableCPUCoreNumberColumn).toString().trim()));
-						cpuInfo.setClockRateInHz(cpuClockRate);
-						cpuInfo.setFamilyName(csvRecord.get(csvFileLine).get(cpuFamilyNameColumn).toString().trim());
-						cpuInfo.setDenomination(csvRecord.get(csvFileLine).get(cpuDenominationColumn).toString().trim());
-						newWorker.setCpuInfo(cpuInfo);
-						
-						/* we accept GB, Mb, Kb or byte data and convert them all into bytes */
-						if (csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toLowerCase().toString().contains("gb"))
-						{
-							availableMemorySize = 1024 * 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().trim().split("gb|gB|Gb|GB")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().toLowerCase().contains("mb"))
-						{
-							availableMemorySize = 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().trim().split("mb|mB|Mb|MB")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().toLowerCase().contains("kb"))
-						{
-							availableMemorySize = 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().trim().split("kb|kB|Kb|KB")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().toLowerCase().contains("b"))
-						{
-							availableMemorySize = Double.valueOf(csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().trim().split("b|B")[0].trim());
-						}
-						
-						newWorker.setAvailableMemorySize(availableMemorySize);
-						
-						/* we accept GB, Mb, Kb or byte data and convert them all into bytes */
-						if (csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().toLowerCase().contains("gb") )
-						{
-							availableDiskSize = 1024 * 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().trim().split("gb|gB|Gb|GB")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().toLowerCase().contains("mb") )
-						{
-							availableDiskSize = 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().trim().split("mb|mB|Mb|MB")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().toLowerCase().contains("kb") )
-						{
-							availableDiskSize = 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().trim().split("kb|kB|Kb|KB")[0].trim());
-						}
-						else if ( csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().toLowerCase().contains("b"))
-						{
-							availableDiskSize = Double.valueOf(csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().trim().split("b|B")[0].trim());
-						}
-						
-						newWorker.setAvailableDiskSize(availableDiskSize);
-						
-						/* we accept GB/s, MB/s, KB/s or B/s data and convert them all into B/s */
-						if (csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().toLowerCase().contains("gb/s"))
-						{
-							connectionBandwidthWithMasterPC = 1024 * 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().trim().split("GB/S|GB/s|Gb/S|Gb/s|gB/S|gB/s|gb/S|gb/s")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().toLowerCase().contains("mb/s")
-								)
-						{
-							connectionBandwidthWithMasterPC = 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().trim().split("MB/S|MB/s|Mb/S|Mb/s|mB/S|mB/s|mb/S|mb/s")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().toLowerCase().contains("kb/s")
-								){
-							connectionBandwidthWithMasterPC = 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().trim().split("KB/S|KB/s|Kb/S|Kb/s|kB/S|kB/s|kb/S|kb/s")[0].trim());
-						}
-						else if (csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().toLowerCase().contains("b/s"))
-						{
-							connectionBandwidthWithMasterPC = Double.valueOf(csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().trim().split("B/S|B/s|b/S|b/s")[0].trim());
-						}
-						
-						newWorker.setConnectionBandwidthWithMasterPC(connectionBandwidthWithMasterPC);
-						
-						try
-						{  /* we convert all time data into seconds */
-							Date date = dateFormat.parse(csvRecord.get(csvFileLine).get(connectionDelayWithMasterPCColumn).toString().trim());
-							
-							if (date != null)
-							{
-								Calendar calendar = Calendar.getInstance();
-						        calendar.setTime(date);
-						        connectionDelayWithMasterPC = 3600 * calendar.get(Calendar.HOUR) + 60 * calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND);
-							}
-							else
-							{
-								connectionDelayWithMasterPC = Long.valueOf(csvRecord.get(csvFileLine).get(connectionDelayWithMasterPCColumn).toString());
-							}
-						}
-						catch (ParseException e)
-						{
-							e.printStackTrace();
-						}
-						
-						newWorker.setConnectionDelayWithMasterPC(connectionDelayWithMasterPC); 
-						newWorker.print();
-						
-
-}
-				}
-
-				parser.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			 
-		} catch (FileNotFoundException e) {
+			ArrayList<Job> jobs = getJobs();
+			ArrayList<Worker> wksArrayList = getWorkers();
+			JobScheduler jobScheduler = new JobScheduler(jobs, wksArrayList);
+			
+			jobScheduler.getPopulationInitial();
+			
+			
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
 		}
 		
 		
 		
-		
-		
-		
-		
+	}
+	
+	
+	public static ArrayList<Job> getJobs() {
 		/* job CSV file parsing */
+		ArrayList<Job> jobs = new ArrayList<Job>() ;
 		try
 		{
 			Reader csvData = new FileReader(".\\data\\jobs.csv");
@@ -299,7 +115,7 @@ public class Main {
 								|| estimatedResultFileSizeColumn == 0 || threadProcessCountColumn == 0))
 						{
 							System.out.println("Some column headers are missing in your jobs CSV file. Please make sure your file complies with the defined standards and try again.");
-							return;
+							return jobs;
 						}
 					}
 					else  /* we get and process each cell data thanks to column indexes and the current CSV file line we're dealing with */
@@ -556,6 +372,7 @@ public class Main {
 							} 
 						}
 						newJob.print();
+						jobs.add(newJob);
 					}
 				}
 
@@ -570,6 +387,211 @@ public class Main {
 		{
 			e.printStackTrace();
 		}
+		return jobs;
+	}
+	
+	public static ArrayList<Worker> getWorkers() {
+
+		ArrayList<Worker> workers =   new ArrayList<Worker>() ;
+		try {
+			Reader csvData = new FileReader(".\\data\\workers.csv");
+			System.out.println("----");
+			CSVParser parser;
+			try
+			{
+				parser = CSVParser.parse(csvData, CSVFormat.EXCEL);
+				List<CSVRecord> csvRecord = parser.getRecords();
+				int workerPCNameColumn = 0, availableCPUCoreNumberColumn = 0, cpuFamilyNameColumn = 0, cpuDenominationColumn = 0, availableMemorySizeColumn = 0;
+				int availableDiskSizeColumn = 0, connectionBandwidthWithMasterPCColumn = 0, connectionDelayWithMasterPCColumn = 0, cpuClockRateColumn = 0;
+				
+				for (int csvFileLine = 0; csvFileLine < csvRecord.size(); ++csvFileLine)
+				{
+					if (csvFileLine == 0)  /* we first get the CSV file column indexes thanks to column names available on the first CSV file line */
+					{
+						for (int csvFileColumn = 0; csvFileColumn < csvRecord.get(csvFileLine).size(); ++csvFileColumn)
+						{
+							if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("worker pc name"))
+							{
+								workerPCNameColumn = csvFileColumn;
+							}
+							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("available cpu core number"))
+							{
+								availableCPUCoreNumberColumn = csvFileColumn;
+							}
+							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("cpu family name"))
+							{
+								cpuFamilyNameColumn = csvFileColumn;
+							}
+							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("cpu denomination"))
+							{
+								cpuDenominationColumn = csvFileColumn;
+							}
+							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("cpu clock rate"))
+							{
+								cpuClockRateColumn = csvFileColumn;
+							}
+							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("available memory size"))
+							{
+								availableMemorySizeColumn = csvFileColumn;
+							}
+							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("available disk size"))
+							{
+								availableDiskSizeColumn = csvFileColumn;
+							}
+							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("connection bandwidth with master pc"))
+							{
+								connectionBandwidthWithMasterPCColumn = csvFileColumn;
+							}
+							else if (csvRecord.get(csvFileLine).get(csvFileColumn).toString().toLowerCase().equals("connection delay with master pc"))
+							{
+								connectionDelayWithMasterPCColumn = csvFileColumn;
+							}
+						}
+						
+						if (workerPCNameColumn == 0 && (availableCPUCoreNumberColumn == 0 || cpuFamilyNameColumn == 0 || cpuDenominationColumn == 0 || availableMemorySizeColumn == 0
+								|| availableDiskSizeColumn == 0 || connectionBandwidthWithMasterPCColumn == 0 || connectionDelayWithMasterPCColumn == 0 || cpuClockRateColumn == 0))
+						{
+							System.out.println("Some column headers are missing in your workers CSV file. Please make sure your file complies with the defined standards and try again.");
+							return workers;
+						}
+					}
+					else  /* we get and process each cell data thanks to column indexes and the current CSV file line we're dealing with */
+					{
+						CPU cpuInfo = new CPU();
+						SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+						Worker newWorker = new Worker();  /* we create a new worker for each new CSV file line and populate it with that line's data */
+						double availableMemorySize = 0.0, availableDiskSize = 0.0, connectionBandwidthWithMasterPC = 0.0, connectionDelayWithMasterPC = 0.0, cpuClockRate = 0.0;
+						
+						/* we set the new worker's attributes based on the current CSV file line data */
+						newWorker.setID(csvFileLine);
+						newWorker.setName(csvRecord.get(csvFileLine).get(workerPCNameColumn));
+						newWorker.setCPUUsageInPercentage(0.0);
+						newWorker.setCurrentGlobalCPUTime(0.0);
+						
+						/* we accept GHz, MHz, KHz or Hz data and convert them all into Hertz */
+						if (csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().toLowerCase().contains("ghz") )
+						{
+							cpuClockRate = 1000 * 1000 * 1000 * Double.valueOf(csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().trim().split("GHZ|GHz|GhZ|Ghz|gHZ|gHz|ghZ|ghz")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().toLowerCase().contains("mhz") )
+						{
+							cpuClockRate = 1000 * 1000 * Double.valueOf(csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().trim().split("MHZ|MHz|MhZ|Mhz|mHZ|mHz|mhZ|mhz")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().toLowerCase().contains("khz"))
+						{
+							cpuClockRate = 1000 * Double.valueOf(csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().trim().split("KHZ|KHz|KhZ|Khz|kHZ|kHz|khZ|khz")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().toLowerCase().contains("hz"))
+						{
+							cpuClockRate = Double.valueOf(csvRecord.get(csvFileLine).get(cpuClockRateColumn).toString().trim().split("HZ|Hz|hZ|hz")[0].trim());
+						}
+						
+						cpuInfo.setNumberOfCores(Integer.valueOf(csvRecord.get(csvFileLine).get(availableCPUCoreNumberColumn).toString().trim()));
+						cpuInfo.setClockRateInHz(cpuClockRate);
+						cpuInfo.setFamilyName(csvRecord.get(csvFileLine).get(cpuFamilyNameColumn).toString().trim());
+						cpuInfo.setDenomination(csvRecord.get(csvFileLine).get(cpuDenominationColumn).toString().trim());
+						newWorker.setCpuInfo(cpuInfo);
+						
+						/* we accept GB, Mb, Kb or byte data and convert them all into bytes */
+						if (csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toLowerCase().toString().contains("gb"))
+						{
+							availableMemorySize = 1024 * 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().trim().split("gb|gB|Gb|GB")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().toLowerCase().contains("mb"))
+						{
+							availableMemorySize = 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().trim().split("mb|mB|Mb|MB")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().toLowerCase().contains("kb"))
+						{
+							availableMemorySize = 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().trim().split("kb|kB|Kb|KB")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().toLowerCase().contains("b"))
+						{
+							availableMemorySize = Double.valueOf(csvRecord.get(csvFileLine).get(availableMemorySizeColumn).toString().trim().split("b|B")[0].trim());
+						}
+						
+						newWorker.setAvailableMemorySize(availableMemorySize);
+						
+						/* we accept GB, Mb, Kb or byte data and convert them all into bytes */
+						if (csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().toLowerCase().contains("gb") )
+						{
+							availableDiskSize = 1024 * 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().trim().split("gb|gB|Gb|GB")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().toLowerCase().contains("mb") )
+						{
+							availableDiskSize = 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().trim().split("mb|mB|Mb|MB")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().toLowerCase().contains("kb") )
+						{
+							availableDiskSize = 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().trim().split("kb|kB|Kb|KB")[0].trim());
+						}
+						else if ( csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().toLowerCase().contains("b"))
+						{
+							availableDiskSize = Double.valueOf(csvRecord.get(csvFileLine).get(availableDiskSizeColumn).toString().trim().split("b|B")[0].trim());
+						}
+						
+						newWorker.setAvailableDiskSize(availableDiskSize);
+						
+						/* we accept GB/s, MB/s, KB/s or B/s data and convert them all into B/s */
+						if (csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().toLowerCase().contains("gb/s"))
+						{
+							connectionBandwidthWithMasterPC = 1024 * 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().trim().split("GB/S|GB/s|Gb/S|Gb/s|gB/S|gB/s|gb/S|gb/s")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().toLowerCase().contains("mb/s")
+								)
+						{
+							connectionBandwidthWithMasterPC = 1024 * 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().trim().split("MB/S|MB/s|Mb/S|Mb/s|mB/S|mB/s|mb/S|mb/s")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().toLowerCase().contains("kb/s")
+								){
+							connectionBandwidthWithMasterPC = 1024 * Double.valueOf(csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().trim().split("KB/S|KB/s|Kb/S|Kb/s|kB/S|kB/s|kb/S|kb/s")[0].trim());
+						}
+						else if (csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().toLowerCase().contains("b/s"))
+						{
+							connectionBandwidthWithMasterPC = Double.valueOf(csvRecord.get(csvFileLine).get(connectionBandwidthWithMasterPCColumn).toString().trim().split("B/S|B/s|b/S|b/s")[0].trim());
+						}
+						
+						newWorker.setConnectionBandwidthWithMasterPC(connectionBandwidthWithMasterPC);
+						
+						try
+						{  /* we convert all time data into seconds */
+							Date date = dateFormat.parse(csvRecord.get(csvFileLine).get(connectionDelayWithMasterPCColumn).toString().trim());
+							
+							if (date != null)
+							{
+								Calendar calendar = Calendar.getInstance();
+						        calendar.setTime(date);
+						        connectionDelayWithMasterPC = 3600 * calendar.get(Calendar.HOUR) + 60 * calendar.get(Calendar.MINUTE) + calendar.get(Calendar.SECOND);
+							}
+							else
+							{
+								connectionDelayWithMasterPC = Long.valueOf(csvRecord.get(csvFileLine).get(connectionDelayWithMasterPCColumn).toString());
+							}
+						}
+						catch (ParseException e)
+						{
+							e.printStackTrace();
+						}
+						
+						newWorker.setConnectionDelayWithMasterPC(connectionDelayWithMasterPC); 
+						newWorker.print();
+						workers.add(newWorker);
+}
+				}
+
+				parser.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			 
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		}
+		return workers;
 	}
 	
 	
