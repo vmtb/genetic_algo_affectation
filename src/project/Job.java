@@ -21,6 +21,7 @@ public class Job implements Runnable  /* this class represents a UPC job */
 	protected boolean finishedBeingProcessedOnAssignedWorker = false;  /* whether this job has finished being processed on its assigned worker or not */
 	protected boolean currentlyBeingProcessedOnAssignedWorker = false;  /* whether this job is being processed on its assigned worker or not */
 	protected String name = "";  /* name of this job */
+	protected double theta = 0;
 	
 	public Job(int ID, HashMap<String, Long> standardProcessingDurations, double requiredMemorySizeForExecution, double requiredDiskSizeForExecution, Worker assignedWorker, double jobCurrentCPUTime,
 			double dockerFileSize, long assignmentTime, double estimatedResultFileSize, double dockerFileGenerationDurationOnMasterPC, boolean currentlyBeingProcessedOnAssignedWorker,
@@ -49,6 +50,8 @@ public class Job implements Runnable  /* this class represents a UPC job */
 	{
 		
 	}
+	
+	
 	
 	public Job duplicate(Job job)  /* creates a new copy of the passed in job */
 	{
@@ -313,4 +316,14 @@ public class Job implements Runnable  /* this class represents a UPC job */
 	{
 		this.currentlyBeingProcessedOnAssignedWorker = currentlyBeingProcessedOnAssignedWorker;
 	}
+
+	public double getTheta() {
+		return theta;
+	}
+
+	public void setTheta(double theta) {
+		this.theta = theta;
+	}
+	
+	
 }
