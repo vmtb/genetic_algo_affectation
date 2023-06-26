@@ -77,7 +77,7 @@ public class SingleSolution {
 				score += this.costMatrix[worker.ID-1][i];
 			}
 		}
-		System.out.println("Score "+score);
+		// System.out.println("Score "+score);
 		
 		return score;
 	}
