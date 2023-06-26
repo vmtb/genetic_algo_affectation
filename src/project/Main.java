@@ -25,7 +25,13 @@ public class Main {
 			ArrayList<Worker> wksArrayList = getWorkers();
 			JobScheduler jobScheduler = new JobScheduler(jobs, wksArrayList);
 			
-			jobScheduler.getPopulationInitial();
+			Population population = jobScheduler.getPopulationInitial();
+			
+			// Planification 
+			jobScheduler.startGeneticAlg(population);
+			
+			// Exécution 
+			
 			
 			
 		} catch (Exception e) {
@@ -593,10 +599,7 @@ public class Main {
 		}
 		return workers;
 	}
-	
-	
-	
-	
+	 
 	
 
 }

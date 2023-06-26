@@ -1,6 +1,9 @@
 package project;
  
-import java.util.ArrayList; 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random; 
 
 public class JobScheduler {
 	ArrayList<Job> jobs = new ArrayList<Job>() ;
@@ -50,10 +53,12 @@ public class JobScheduler {
 	}
 	
 	//9 jobs  vs 5 workers
-	public void getPopulationInitial() { 
+	//Réitérer
+	public Population getPopulationInitial() { 
 		// Greedy Algorithm  
 		/**  **/
-		int[] divs = new int[] {2, 4, 6, 8, 10, 12}; //, 14, 16
+		Population population = new Population();
+		int[] divs = new int[] { 5, 8, 10 }; //, 14, 16 //4
 		int M = this.jobs.size(); 
 		int N = this.workers.size(); 
 		
@@ -78,24 +83,27 @@ public class JobScheduler {
 				Worker  w = this.workers.get(k);
 				if(lastLimit <= w.cpuInfo.numberOfCores && w.cpuInfo.numberOfCores<j) {
 					workersClasses.get(0).add(w);
-				}else {
+				} else { 
 					workersClasses.get(1).add(w);
 				} 
 			}
-			
+			if(workersClasses.get(0).size()==1) {
+				//workersClasses.set(0, new ArrayList<Worker>());
+				//workersClasses.get(1).add(workersClasses.get(0).get(0));
+			}
 
 			for (int k = 0; k < this.jobs.size(); k++) {
 				Job  jo = this.jobs.get(k);
 				if(lastLimit <= jo.threadProcessCount && jo.threadProcessCount<j) {
 					jobClassesJobs.get(0).add(jo);
-				}else {
+				} else { 
 					jobClassesJobs.get(1).add(jo);
-				} 
+				}  
 			}
 			
 			
-			lastLimit = j; 
-			
+			lastLimit = 5; 
+			System.out.println();
 			System.out.println("Pour j "+j);
 			System.out.println("workers");
 			System.out.println(workersClasses.get(0).size());
@@ -129,7 +137,7 @@ public class JobScheduler {
 				for (int l = 0; l < jbsArrayList.size(); l++) {
 					Job job = jbsArrayList.get(l);  
 					double miniMum = Double.MAX_VALUE; 
-					int currentIndex = 0;
+					int currentIndex = -1 ;
 					int newIndexL = jbsArrayList.get(l).ID-1;
 					for (int l2 = 0; l2 < wksArrayList.size(); l2++) {
 						int newIndexL2 = wksArrayList.get(l2).ID-1;
@@ -144,7 +152,7 @@ public class JobScheduler {
 					}
 					
 					System.out.println("For JOB "+job.ID);
-					if(wksArrayList.size()>0) {
+					if(wksArrayList.size()>0 && currentIndex>=0) {
 						Worker worker = wksArrayList.get(currentIndex);
 						worker.setAvailableDiskSize(worker.getAvailableDiskSize()-job.getRequiredDiskSizeForExecution());
 						worker.setAvailableMemorySize(worker.getAvailableMemorySize()-job.getRequiredMemorySizeForExecution());
@@ -154,20 +162,145 @@ public class JobScheduler {
 						jbsArrayList.set(l, job);
 						singleSolution.addJob(job);
 					}
-				}
-				
-				
+				}  
 			}
 			
 			singleSolution.showSolution();
-			
-			
+			if(singleSolution.jobs.size()==this.jobs.size()) {
+				population.addSolution(singleSolution);
+			} 
 		}
+		
+		return population;
 		
 		
 		
 	}
 	
+	//5713
+	public void startGeneticAlg(Population p) {
+		System.out.println("Taille de la population initiale: "+p.solutions.size());
+		int conv = 0;
+		while(conv<10) {
+			
+			//calculate score// 
+			System.out.println("Taille de la population: "+p.solutions.size());
+			double scores [] = new double[p.solutions.size()];
+			for (int i = 0; i < scores.length; i++) {
+				scores[i] = p.getSolutions().get(i).getScore(this.workers);
+			}
+			
+			//Sort scores from the lowest to the highest
+			ArrayList<SingleSolution> solutions = p.solutions; 
+			for (int i = 0; i < scores.length; i++) {
+				double min = scores[i]; 
+				int pos = i; 
+				for (int j = i; j < scores.length; j++) {
+					if(scores[j]<min) {
+						min= scores[j]; 
+						pos = j; 
+					}
+				}
+				scores[pos] = scores[i];
+				scores[i] = min; 
+				SingleSolution s = solutions.get(i);
+				solutions.set(i, solutions.get(pos)); 
+				solutions.set(pos, s);
+			}
+			p.setSolutions(solutions);
+			
+			Population population = p.clone();
+			
+			// Crossover
+			SingleSolution p1 = p.getSolutions().get(0);
+			SingleSolution p2 = p.getSolutions().get(1);
+			SingleSolution p1p = p1;
+			SingleSolution p2p = p2;
+			int c = (new Random()).nextInt(p1.solution.length);
+			int s1[] = p1.solution; 
+			int s2[] = p2.solution; 
+			for (int i = 0; i < c; i++) {
+				int val = s1[i];
+				s1[i] = s2[i];
+				if(!changeRespectsConstrains(s1)) {
+					s1[i] = val; 
+				}
+				int tempS2 = s2[i];
+				s2[i] = val;	
+				if(!changeRespectsConstrains(s2)) {	
+					s2[i] = tempS2;
+				}
+			}
+			p1p.setSolution(s1);
+			p2p.setSolution(s2);
+			
+			
+			// Mutation
+			//1st parent
+			int m = (new Random()).nextInt(p1.solution.length-1);
+			int s1p[] = s1; 
+			int tempS1m = s1[m]; 
+			s1p[m] = s1[m+1];
+			s1p[m+1] = tempS1m;  
+			if(changeRespectsConstrains(s1p)) {
+				p1p.setSolution(s1p);
+			}
+			//2nd parent
+			m = (new Random()).nextInt(p1.solution.length-1);
+			int s2p[] = s2; 
+			int tempS2m = s2[m]; 
+			s2p[m] = s2[m+1];
+			s2p[m+1] = tempS2m;  
+			if(changeRespectsConstrains(s2p)) {
+				p2p.setSolution(s2p);
+			}
+
+			
+			System.out.println("after crossover");
+			for (int i = 0; i < p.solutions.size(); i++) {
+				 p.solutions.get(i).getScore(this.workers);
+			}
+			System.out.println("end after crossover");
+			
+			System.out.println("after mutation");
+			for (int i = 0; i < population.solutions.size(); i++) {
+				population.solutions.get(i).getScore(this.workers);
+			}
+			System.out.println("end after mutation");
+			
+			
+			
+			// Check score
+			double score1 = p1p.getScore(this.workers);
+			double score2 = p2p.getScore(this.workers);
+			double scoreP1 = scores[0]; 
+			double scoreP2 = scores[1]; 
+			boolean oneSolution = false;  
+			if((score1<scoreP1 || score1<scoreP2) &&  score1!=scoreP1 && score1 !=scoreP2) {
+				System.out.println("add enfant 1 ");
+				p.addSolution(p2p);
+				oneSolution = true;
+			}
+			if((score2<scoreP1 || score2<scoreP2) && (score2!=scoreP1 && score2 !=scoreP2)) {
+				System.out.println("add enfant 2 ");
+				p.addSolution(p2p);
+				oneSolution = true; 
+			}
+			if(!oneSolution) {
+				conv++; 
+			}
+			
+
+			System.out.println("Score parent 1: "+scoreP1);
+			System.out.println("Score parent 2: "+scoreP2);
+			System.out.println("Score Enfant 1: "+score1);
+			System.out.println("Score Enfant 2: "+score2);
+
+			
+		}
+	}
+	 
+
 	public ArrayList<Worker>  sortWorkers(ArrayList<Worker> worker){ 
 		for (int i = 0; i < worker.size(); i++) {
 			int minTime = worker.get(i).cpuInfo.getNumberOfCores();
@@ -197,8 +330,7 @@ public class JobScheduler {
 				if(minTime>processTime) {
 					minTime = processTime;
 					pos = j;
-				}
-				
+				} 
 			}
 			Job tempWorker = worker.get(i);
 			worker.set(i, worker.get(pos));
@@ -208,5 +340,44 @@ public class JobScheduler {
 		return worker;
 	}
 	
+	public boolean changeRespectsConstrains(int[] solutions) {
+		boolean canProcess = true; 
+		ArrayList<Worker> workers = this.workers;
+		
+		
+	
+		for (int jobIndex = 0; jobIndex < solutions.length; jobIndex++) {
+			Job job = null; 
+			for (int i = 0; i < this.jobs.size(); i++) {
+				if(this.jobs.get(i).ID==jobIndex+1) {
+					job = this.jobs.get(i);
+				}
+			} 
+			Worker worker = null; 
+			int workerIndex = -1;
+			for (int j = 0; j < workers.size(); j++) { 
+				if(workers.get(j).getBase10Name()==solutions[jobIndex]) {  
+					worker = workers.get(j);  
+					workerIndex = j; 
+					break;  
+				 }  
+			} 
+			
+			if(worker.getAvailableDiskSize() > job.getRequiredDiskSizeForExecution() && 
+				worker.getAvailableMemorySize() > job.getRequiredMemorySizeForExecution()) {
+				
+				worker.setAvailableMemorySize(worker.getAvailableMemorySize() - job.getRequiredMemorySizeForExecution());
+				worker.setAvailableDiskSize(worker.getAvailableMemorySize()-job.getRequiredMemorySizeForExecution());
+				
+				workers.set(workerIndex, worker);
+			}else {
+				canProcess = false;
+				break; 
+			}
+			
+		} 
+		
+		return canProcess;
+	}
 	
 }

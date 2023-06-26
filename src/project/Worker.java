@@ -22,6 +22,16 @@ public class Worker  /* this class represents a UPC worker */
 	protected double currentGlobalCPUTime = 0.0;  /* the sum of the CPU time of all the jobs that are being executed on this worker PC */
 	protected String name = "";  /* name of this worker */
 	
+	protected int base10Name = 0;  /* 5 => 10000 => 16 |  */
+	
+	public int getBase10Name() {
+		return base10Name;
+	}
+
+	public void setBase10Name(int base10Name) {
+		this.base10Name = base10Name;
+	}
+
 	public Worker(int ID, CPU cpuInfo, double currentGlobalCPUTime, double availableMemorySize, double availableDiskSize, List<Job> assignedJobs,
 			double connectionBandwidthWithMasterPC, double connectionDelayWithMasterPC, double cpuUsageInPercentage, String name,
 			double originalAvailableMemorySize, double originalAvailableDiskSize, double originalConnectionBandwidthWithMasterPC, double originalConnectionDelayWithMasterPC)
@@ -41,6 +51,10 @@ public class Worker  /* this class represents a UPC worker */
 		this.cpuUsageInPercentage = cpuUsageInPercentage;
 		this.name = name;
 		this.currentGlobalCPUTime = currentGlobalCPUTime;
+		//id =1
+		//id  = 2; 
+		//id = 3
+		// 
 	}
 	
 	public Worker()  /* this constructor creates a new empty worker */
@@ -141,6 +155,13 @@ public class Worker  /* this class represents a UPC worker */
 	public void setID(int iD)  /* sets this worker's ID */
 	{
 		this.ID = iD;
+
+		int base10Temp = 0;
+		for (int i = 0; i < ID; i++) {
+			base10Temp = base10Temp +   (int) ((i==ID-1?1:0) * Math.pow(2, i)); 
+		}
+		System.out.println(base10Temp);
+		this.base10Name = base10Temp; 
 	}
 	
 	public double getCurrentGlobalCPUTime()  /* returns this worker's current global CPU time */
