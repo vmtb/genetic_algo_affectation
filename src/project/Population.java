@@ -77,26 +77,26 @@ public class Population  implements Cloneable {
 	 }
 	 
 	 public void makeSelection() {
-		 this.parent1 = this.solutions.get(0);
-		 this.parent2 = this.solutions.get(1);
+		 this.parent1 = this.solutions.get(0).clone();
+		 this.parent2 = this.solutions.get(1).clone();
 	 }
 	 
 	 public void doCrossOver() {  
-		System.out.println("------ start crossover ------ ");
 		int c = (new Random()).nextInt(this.parent1.solution.length);
-		int s1[] = this.parent1.solution; 
-		int s2[] = this.parent2.solution; 
+		System.out.println("------ start crossover ------ "+c);
+		int s1[] = this.parent1.solution.clone(); 
+		int s2[] = this.parent2.solution.clone(); 
 		
 		for (int i = 0; i < c; i++) {
 			int val = s1[i];
 			s1[i] = s2[i];
 			if(!changeRespectsConstrains(s1)) {
-				s1[i] = val; 
+				//s1[i] = val;  
 			}
 			int tempS2 = s2[i];
 			s2[i] = val;	
 			if(!changeRespectsConstrains(s2)) {	
-				s2[i] = tempS2;
+				//s2[i] = tempS2; 
 			}
 		}
 		
@@ -111,8 +111,8 @@ public class Population  implements Cloneable {
 	 public void doMutation() {  
 		System.out.println("------ start mutation ------ ");
 		
-		int s1[] = this.parent1.solution ; 
-		int s2[] = this.parent2.solution ; 
+		int s1[] = this.parent1.getSolution() ; 
+		int s2[] = this.parent2.getSolution() ; 
 		
 		//1st parent
 		int m = (new Random()).nextInt(this.parent1.solution.length-1);
@@ -123,16 +123,18 @@ public class Population  implements Cloneable {
 		if(changeRespectsConstrains(s1p)) {
 			this.parent1.setSolution(s1p);
 		}
+		
+		
 		//2nd parent
 		m = (new Random()).nextInt(this.parent1.solution.length-1);
-		int s2p[] = s2.clone(); 
+		int s2p[] = s2.clone();
 		int tempS2m = s2[m]; 
 		s2p[m] = s2[m+1];
 		s2p[m+1] = tempS2m;  
 		if(changeRespectsConstrains(s2p)) {
-			this.parent2.setSolution(s2p);
+			System.out.println("Mut: ");
+			this.parent2.setSolution(s2p); 
 		}
-
 		
 		System.out.println("------ result mutation ------ ");
 		System.out.println("Parent 1: "+this.parent1.getScore(this.workers));
@@ -148,11 +150,8 @@ public class Population  implements Cloneable {
 	  * @param solutions
 	  * @return 
 	  */
-	 protected boolean changeRespectsConstrains(int[] solutions) {
-		boolean canProcess = true; 
-		ArrayList<Worker> workers = this.workers;
-		
-		
+	 protected boolean changeRespectsConstrains(int[] solutions) { 
+		ArrayList<Worker> workers = this.workers; 
 	
 		for (int jobIndex = 0; jobIndex < solutions.length; jobIndex++) {
 			Job job = null; 
@@ -174,18 +173,17 @@ public class Population  implements Cloneable {
 			if(worker.getAvailableDiskSize() > job.getRequiredDiskSizeForExecution() && 
 				worker.getAvailableMemorySize() > job.getRequiredMemorySizeForExecution()) {
 				
-				worker.setAvailableMemorySize(worker.getAvailableMemorySize() - job.getRequiredMemorySizeForExecution());
-				worker.setAvailableDiskSize(worker.getAvailableMemorySize()-job.getRequiredMemorySizeForExecution());
+ 				worker.setAvailableMemorySize(worker.getAvailableMemorySize() - job.getRequiredMemorySizeForExecution());
+ 				worker.setAvailableDiskSize(worker.getAvailableMemorySize()-job.getRequiredMemorySizeForExecution());
 				
 				workers.set(workerIndex, worker);
 			}else {
-				canProcess = false;
-				break; 
+				return false;
 			}
 			
 		} 
 		
-		return canProcess;
+		return true;
 	}
 	
 	

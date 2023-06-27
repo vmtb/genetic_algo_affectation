@@ -2,7 +2,7 @@ package project;
 
 import java.util.ArrayList;
 
-public class SingleSolution {
+public class SingleSolution implements Cloneable{
 	ArrayList<Job> jobs = new ArrayList<Job>();
 	double costMatrix [][];
 	int solution [];
@@ -81,7 +81,18 @@ public class SingleSolution {
 		
 		return score;
 	}
-	 
+ 
+    @Override
+    public SingleSolution clone() {
+        try {
+        	SingleSolution clonedPopulation = (SingleSolution) super.clone();
+            clonedPopulation.solution = this.solution;
+            return clonedPopulation;
+        } catch (CloneNotSupportedException e) {
+            // Gérer l'exception de manière appropriée
+            return null;
+        }
+    }
 	
 	
 	
