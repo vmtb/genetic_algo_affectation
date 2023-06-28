@@ -58,7 +58,7 @@ public class JobScheduler {
 		// Greedy Algorithm  
 		/**  **/
 		Population population = new Population(this.workers, this.jobs);
-		int[] divs = new int[] { 5, 8, 10 }; //, 14, 16 //4
+		int[] divs = new int[] { 4, 6, 8}; //, 14, 16 //4
 		int M = this.jobs.size(); 
 		int N = this.workers.size(); 
 		
@@ -69,9 +69,7 @@ public class JobScheduler {
 			
 			ArrayList<ArrayList<Job>> jobClassesJobs = new ArrayList<ArrayList<Job>>();
 			ArrayList<ArrayList<Worker>> workersClasses = new ArrayList<ArrayList<Worker>>();
-			
-			// worker minimumCoreNumber<>mmaximumCoreNumber
-			// job minimumThreadCount  <>mmaximumThreadCount
+			 
 			// Les coeurs exécutent les threads 
 			workersClasses.add(new ArrayList<Worker>());
 			workersClasses.add(new ArrayList<Worker>());
@@ -80,16 +78,13 @@ public class JobScheduler {
 			jobClassesJobs.add(new ArrayList<Job>());
 			for (int k = 0; k < this.workers.size(); k++) {
 				Worker  w = this.workers.get(k);
-				if(lastLimit <= w.cpuInfo.numberOfCores && w.cpuInfo.numberOfCores<j) {
-					workersClasses.get(0).add(w);
-				} else { 
-					workersClasses.get(1).add(w);
-				} 
-			}
-			if(workersClasses.get(0).size()==1) {
-				//workersClasses.set(0, new ArrayList<Worker>());
-				//workersClasses.get(1).add(workersClasses.get(0).get(0));
-			}
+//				if(lastLimit <= w.cpuInfo.numberOfCores && w.cpuInfo.numberOfCores<j) {
+//					workersClasses.get(0).add(w);
+//				} else { 
+//					workersClasses.get(1).add(w);
+//				} 
+				workersClasses.get(0).add(w); 
+			} 
 
 			for (int k = 0; k < this.jobs.size(); k++) {
 				Job  jo = this.jobs.get(k);
@@ -104,10 +99,7 @@ public class JobScheduler {
 			System.out.println();
 			System.out.println("Pour j "+j);
 			
-			lastLimit = 5; 
-			if(workersClasses.get(0).size()==0 || workersClasses.get(1).size()==0) {
-				// continue;
-			}
+			lastLimit = 0;  
 			
 			SingleSolution singleSolution = greedyIteration(jobClassesJobs, workersClasses);
 			singleSolution.showSolution();
@@ -134,10 +126,11 @@ public class JobScheduler {
 		System.out.println(jobClassesJobs.get(0).size());
 		System.out.println(jobClassesJobs.get(1).size());
 		
+		ArrayList<Worker> wksArrayList = workersClasses.get(0);
+		wksArrayList = sortWorkers(wksArrayList); 
+		
 		for (int k = 0; k < 2; k++) {
 
-			ArrayList<Worker> wksArrayList = workersClasses.get(k);
-			wksArrayList = sortWorkers(wksArrayList); 
 			
 			ArrayList<Job> jbsArrayList = jobClassesJobs.get(k); 
 			for (int l = 0; l < jbsArrayList.size(); l++) {
@@ -160,18 +153,18 @@ public class JobScheduler {
 				int newIndexL = jbsArrayList.get(l).ID-1;
 				for (int l2 = 0; l2 < wksArrayList.size(); l2++) {
 					int newIndexL2 = wksArrayList.get(l2).ID-1;
-					if(miniMum>this.costMatrix[newIndexL2][newIndexL] 
+					if(miniMum>=this.costMatrix[newIndexL2][newIndexL] 
 							&& 
-							wksArrayList.get(l2).getAvailableDiskSize() > job.getRequiredDiskSizeForExecution() 
+							wksArrayList.get(l2).getAvailableDiskSize() >= job.getRequiredDiskSizeForExecution() 
 							&& 
-							wksArrayList.get(l2).getAvailableMemorySize() > job.getRequiredMemorySizeForExecution() ) {
+							wksArrayList.get(l2).getAvailableMemorySize() >= job.getRequiredMemorySizeForExecution() ) {
 						miniMum = this.costMatrix[newIndexL2][newIndexL]; 
 						currentIndex = l2; 
 					}
 				}
 				
 				System.out.println("For JOB "+job.ID);
-				if(wksArrayList.size()>0 && currentIndex>=0) {
+				if(currentIndex>=0) {
 					Worker worker = wksArrayList.get(currentIndex);
 					worker.setAvailableDiskSize(worker.getAvailableDiskSize()-job.getRequiredDiskSizeForExecution());
 					worker.setAvailableMemorySize(worker.getAvailableMemorySize()-job.getRequiredMemorySizeForExecution());
@@ -180,22 +173,7 @@ public class JobScheduler {
 					
 					jbsArrayList.set(l, job);
 					singleSolution.addJob(job);
-				} else {
-//					ArrayList<Job>jjArrayList = jobClassesJobs.get(1);
-//					ArrayList<Job>jjArrayList_0 = jobClassesJobs.get(0);
-//					System.out.println("bback "+k);
-//					if(k==0) { 
-//						jjArrayList.add(job);
-//						//jjArrayList_0.remove(job);//
-//					} else { 
-//						jjArrayList.remove(job);
-//						jjArrayList_0.add(job);  
-//						System.out.println("back " + k);
-//						k = -1;
-//					} 
-//					jobClassesJobs.set(1, jjArrayList);    
-//					jobClassesJobs.set(0, jjArrayList_0);  
-//					break;
+				} else { 
 				} 
 			}   
 		} 
@@ -211,7 +189,7 @@ public class JobScheduler {
 	public void startGeneticAlg(Population p) {
 		System.out.println("Taille de la population initiale: "+p.solutions.size());
 		int conv = 0;
-		while(conv<10) {
+		while(conv<80000) {
 			Population population = p.clone();
 			//calculate score// 
 			System.out.println("Taille de la population: "+p.solutions.size());

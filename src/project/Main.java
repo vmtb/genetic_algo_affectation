@@ -28,7 +28,7 @@ public class Main {
 			Population population = jobScheduler.getPopulationInitial();
 			
 			// Planification 
-			//jobScheduler.startGeneticAlg(population);
+			 jobScheduler.startGeneticAlg(population);
 			
 			// Exécution 
 			

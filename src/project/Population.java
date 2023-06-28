@@ -1,8 +1,8 @@
 package project;
-
-import java.io.Console;
-import java.util.ArrayList;
-import java.util.Random; 
+ 
+/**
+ * REDEFINIR LA NOTION DE COUT
+ * */
 
 public class Population  implements Cloneable {
 	
@@ -86,12 +86,13 @@ public class Population  implements Cloneable {
 		System.out.println("------ start crossover ------ "+c);
 		int s1[] = this.parent1.solution.clone(); 
 		int s2[] = this.parent2.solution.clone(); 
-		
-		for (int i = 0; i < c; i++) {
+		for (int i = c; i < this.parent1.solution.length; i++) {
+
+			Worker worker = this.workers.get((new Random()).nextInt(this.workers.size()));
 			int val = s1[i];
-			s1[i] = s2[i];
+			s1[i] = s2[i];  //s2[i] ; 
 			if(!changeRespectsConstrains(s1)) {
-				//s1[i] = val;  
+				// s1[i] = val;  
 			}
 			int tempS2 = s2[i];
 			s2[i] = val;	
@@ -121,8 +122,8 @@ public class Population  implements Cloneable {
 		s1p[m] = s1[m+1];
 		s1p[m+1] = tempS1m;  
 		if(changeRespectsConstrains(s1p)) {
-			this.parent1.setSolution(s1p);
 		}
+		this.parent1.setSolution(s1p);
 		
 		
 		//2nd parent
@@ -133,8 +134,8 @@ public class Population  implements Cloneable {
 		s2p[m+1] = tempS2m;  
 		if(changeRespectsConstrains(s2p)) {
 			System.out.println("Mut: ");
-			this.parent2.setSolution(s2p); 
 		}
+		this.parent2.setSolution(s2p); 
 		
 		System.out.println("------ result mutation ------ ");
 		System.out.println("Parent 1: "+this.parent1.getScore(this.workers));
