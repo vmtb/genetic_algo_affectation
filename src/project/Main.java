@@ -26,9 +26,10 @@ public class Main {
 			JobScheduler jobScheduler = new JobScheduler(jobs, wksArrayList);
 			
 			Population population = jobScheduler.getPopulationInitial();
+
 			
 			// Planification 
-			 jobScheduler.startGeneticAlg(population);
+			jobScheduler.startGeneticAlg(population);
 			
 			// Exécution 
 			

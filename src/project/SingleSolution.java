@@ -25,6 +25,16 @@ public class SingleSolution implements Cloneable{
 		this.solution = solution;
 	}
 	
+	protected void parseInitialSolution() {
+		for (int i = 0; i < this.jobs.size(); i++) {
+			Job job = this.jobs.get(i); 
+			int jobIndex = job.ID-1; 
+			int workerIndex = job.assignedWorker.ID-1; 
+			int val = job.assignedWorker.getBase10Name();   
+			this.solution[job.ID-1] = val;
+		}
+	}
+	
 	
 
 	public SingleSolution(double[][] costMatrix) { 
@@ -37,6 +47,7 @@ public class SingleSolution implements Cloneable{
 	public void addJob(Job j) {
 		if(!this.jobs.contains(j)) { 
 			this.jobs.add(j);
+			parseInitialSolution();
 		}
 	}
 	
@@ -51,14 +62,9 @@ public class SingleSolution implements Cloneable{
 			int workerIndex = job.assignedWorker.ID-1;
 			System.out.println();
 			int val = job.assignedWorker.getBase10Name(); 
-			// the last worker has pow index 0 
-//			for (int j = 0; j < NW; j++) {
-//				System.out.print(workerIndex==j?"1":"0");
-//				val = (int) (val + Math.pow(2, NW-j-1)*(workerIndex==j?1:0));
-//			}
+			// the last worker has pow index 0  
 			System.out.println();
-			System.out.println("Value ==> "+val);
-			this.solution[job.ID-1] = val;
+			System.out.println("Value ==> "+val); 
 		}
 	}
 	
@@ -75,9 +81,8 @@ public class SingleSolution implements Cloneable{
 			} 
 			if(worker!=null) {
 				score += this.costMatrix[worker.ID-1][i];
-			}
+			} 
 		}
-		// System.out.println("Score "+score);
 		
 		return score;
 	}

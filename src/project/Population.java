@@ -1,5 +1,8 @@
 package project;
- 
+
+import java.util.ArrayList;
+import java.util.Random;
+
 /**
  * REDEFINIR LA NOTION DE COUT
  * */
@@ -31,7 +34,7 @@ public class Population  implements Cloneable {
 	public void addSolution(SingleSolution solution) { 
 		this.solutions.add(solution);
 	}
-	
+
 	
     @Override
     public Population clone() {
@@ -50,6 +53,7 @@ public class Population  implements Cloneable {
 		double scores [] = new double[this.solutions.size()];
 		for (int i = 0; i < scores.length; i++) {
 			scores[i] = this.solutions.get(i).getScore(this.workers);
+			//this.solutions.get(i).showSolution();
 			System.out.println("Pop. initiale score "+i+": "+scores[i]);
 		}
 		this.scores = scores;
@@ -92,12 +96,12 @@ public class Population  implements Cloneable {
 			int val = s1[i];
 			s1[i] = s2[i];  //s2[i] ; 
 			if(!changeRespectsConstrains(s1)) {
-				// s1[i] = val;  
+				s1[i] = val;  
 			}
 			int tempS2 = s2[i];
 			s2[i] = val;	
 			if(!changeRespectsConstrains(s2)) {	
-				//s2[i] = tempS2; 
+				s2[i] = tempS2; 
 			}
 		}
 		
@@ -122,8 +126,8 @@ public class Population  implements Cloneable {
 		s1p[m] = s1[m+1];
 		s1p[m+1] = tempS1m;  
 		if(changeRespectsConstrains(s1p)) {
+			this.parent1.setSolution(s1p);
 		}
-		this.parent1.setSolution(s1p);
 		
 		
 		//2nd parent
@@ -134,8 +138,8 @@ public class Population  implements Cloneable {
 		s2p[m+1] = tempS2m;  
 		if(changeRespectsConstrains(s2p)) {
 			System.out.println("Mut: ");
+			this.parent2.setSolution(s2p); 
 		}
-		this.parent2.setSolution(s2p); 
 		
 		System.out.println("------ result mutation ------ ");
 		System.out.println("Parent 1: "+this.parent1.getScore(this.workers));
@@ -171,13 +175,12 @@ public class Population  implements Cloneable {
 				 }  
 			} 
 			
-			if(worker.getAvailableDiskSize() > job.getRequiredDiskSizeForExecution() && 
-				worker.getAvailableMemorySize() > job.getRequiredMemorySizeForExecution()) {
+			if(worker.getAvailableDiskSize() >= job.getRequiredDiskSizeForExecution() && 
+				worker.getAvailableMemorySize() >= job.getRequiredMemorySizeForExecution()) {
 				
- 				worker.setAvailableMemorySize(worker.getAvailableMemorySize() - job.getRequiredMemorySizeForExecution());
- 				worker.setAvailableDiskSize(worker.getAvailableMemorySize()-job.getRequiredMemorySizeForExecution());
-				
-				workers.set(workerIndex, worker);
+ 				//worker.setAvailableMemorySize(worker.getAvailableMemorySize() - job.getRequiredMemorySizeForExecution());
+ 				//worker.setAvailableDiskSize(worker.getAvailableMemorySize()-job.getRequiredMemorySizeForExecution());
+				//workers.set(workerIndex, worker);
 			}else {
 				return false;
 			}
