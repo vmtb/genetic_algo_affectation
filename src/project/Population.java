@@ -14,7 +14,7 @@ public class Population  implements Cloneable {
 	protected ArrayList<Worker> workers; 
 	protected ArrayList<Job> jobs; 
 	protected SingleSolution parent1; 
-	protected SingleSolution parent2; 
+	protected SingleSolution parent2;  
 	
 	public Population(ArrayList<Worker> workers, ArrayList<Job> jobs) {
 		this.workers = workers;
@@ -59,6 +59,7 @@ public class Population  implements Cloneable {
 		this.scores = scores;
 		return scores;
 	 }
+	 
 	 
 	 public void sortScorePopulation() {
 		 ArrayList<SingleSolution> solutions = this.solutions; 

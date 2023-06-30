@@ -24,9 +24,8 @@ public class Main {
 			ArrayList<Job> jobs = getJobs();
 			ArrayList<Worker> wksArrayList = getWorkers();
 			JobScheduler jobScheduler = new JobScheduler(jobs, wksArrayList);
-			
-			Population population = jobScheduler.getPopulationInitial();
-
+ 
+			Population population = jobScheduler.getPopulationInitial(); 
 			
 			// Planification 
 			jobScheduler.startGeneticAlg(population);
@@ -42,6 +41,20 @@ public class Main {
 		
 		
 		
+	}
+	
+
+	public double [][] getCostMatrix(ArrayList<Worker> workers, ArrayList<Job> jobs) {
+		double costMatrix [][]= new double[workers.size()][jobs.size()];
+		for (int i = 0; i < workers.size(); i++) {
+			Worker w = workers.get(i); 
+			System.out.println(); 
+			for (int j = 0; j < jobs.size(); j++) {  
+				costMatrix[i][j] = jobs.get(j).getStandardProcessingDurations().
+						get(w.getCpuInfo().getFamilyName() + "-" + w.getCpuInfo().getDenomination() + "-" + w.getCpuInfo().getNumberOfCores());
+			}
+		}
+		return costMatrix;
 	}
 	
 	

@@ -1,6 +1,7 @@
 package project;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class SingleSolution implements Cloneable{
 	ArrayList<Job> jobs = new ArrayList<Job>();
@@ -67,10 +68,17 @@ public class SingleSolution implements Cloneable{
 			System.out.println("Value ==> "+val); 
 		}
 	}
-	
-	public double getScore(ArrayList<Worker> workers) {
-		double score = 0;
+
+	public void showSolution2(ArrayList<Worker> workers) {
+		
 		for (int i = 0; i < this.solution.length; i++) {
+			Job job = null;
+			for (int j = 0; j < this.jobs.size(); j++) {
+				if(this.jobs.get(j).ID==i+1) {
+					job = this.jobs.get(j);
+					break;
+				}
+			}
 			int workerVal = this.solution[i]; 
 			Worker worker = null; 
 			for (int j = 0; j < workers.size(); j++) {
@@ -79,14 +87,69 @@ public class SingleSolution implements Cloneable{
 					break;
 				}
 			} 
-			if(worker!=null) {
-				score += this.costMatrix[worker.ID-1][i];
+			
+			job.setAssignedWorker(worker);
+			System.out.println();
+			System.out.print("Job "+(job.ID)+" =====>  Worker "+job.assignedWorker.ID+"  ====> ("+this.costMatrix[job.assignedWorker.ID-1][job.ID-1]+")");
+			 
+			System.out.println(); 
+			// the last worker has pow index 0   
+		}
+	}
+	
+	public double getScore(ArrayList<Worker> workers) {
+		double[][] costs = cloneCostMatrix();
+		double score = 0; //this.costMatrix// 
+		double [] ssworkers = new double [workers.size()];  
+		
+		for (int i = 0; i < workers.size(); i++) {
+			int tempGene = 0;  
+			for (int k = 0; k < this.solution.length; k++) {
+				int workerVal = this.solution[k];  
+				if(workers.get(i).getBase10Name()==workerVal) {
+					tempGene+=costs[workers.get(i).ID-1][k]; 
+				}  
 			} 
+			ssworkers[i] = tempGene;  
 		}
 		
+		double max = ssworkers[0];
+		for (int i = 0; i < ssworkers.length; i++) {
+			//System.out.print(ssworkers[i]+" -" );
+			if(ssworkers[i]>max) {
+				max =ssworkers[i];
+			}
+		}  
+		score = max; 
+		
+//		for (int i = 0; i < this.solution.length; i++) {
+//			int workerVal = this.solution[i]; 
+//			Worker worker = null; 
+//			for (int j = 0; j < workers.size(); j++) {
+//				if(workers.get(j).getBase10Name()==workerVal) {
+//					worker = workers.get(j);
+//					break;
+//				}
+//			} 
+//			if(worker!=null) {
+//				score += this.costMatrix[worker.ID-1][i];
+//			} 
+//		}
+//		
 		return score;
 	}
- 
+	
+
+	private double[][] cloneCostMatrix() {
+		double[][] costMatrixHere =new  double[costMatrix.length][costMatrix[0].length];
+		for (int i = 0; i < costMatrix.length; i++) {
+			for (int j = 0; j < costMatrix[0].length; j++) {
+				costMatrixHere[i][j] = costMatrix[i][j];
+			}
+		} 
+		return costMatrixHere;
+	}
+	
     @Override
     public SingleSolution clone() {
         try {

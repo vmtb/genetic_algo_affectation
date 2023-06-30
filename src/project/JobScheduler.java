@@ -5,15 +5,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random; 
 
+
 public class JobScheduler {
 	ArrayList<Job> jobs = new ArrayList<Job>() ;
 	ArrayList<Worker> workers = new ArrayList<Worker>() ;
-	double costMatrix [][];
+	protected double costMatrix [][];
 	
 	//		j1  j2  j3  j4
 	// w1   1   0   1   0   ==> 8*1+4*0+2*1+1*0 = 8+2 = 10 
 	// w2	0   1   0   0   ==> 
-	// w3   0   0   0   1
+	// w3   0   0   0   1   ==>
 	
 	public JobScheduler(ArrayList<Job> jobs, ArrayList<Worker> workers)  
 	{
@@ -21,19 +22,19 @@ public class JobScheduler {
 		this.workers = workers; 
 		this.costMatrix = new double[workers.size()][jobs.size()];
 		initializeCostMatrix(); 
-		
+ 
 		// Long.valueOf(1 * this.getStandardProcessingDurations().get(this.getAssignedWorker().getCpuInfo().getFamilyName() + "-" + this.getAssignedWorker().getCpuInfo().getDenomination() + "-" + this.getAssignedWorker().getCpuInfo().getNumberOfCores())));  /* we create a new thread and makes it sleep for the amount of time required to process this job on its assigned worker PC */
 		 
 	}
 	
 	public void initializeCostMatrix() {
 		for (int i = 0; i < this.workers.size(); i++) {
-			Worker w = this.workers.get(i);
-			System.out.println();
-			for (int j = 0; j < this.jobs.size(); j++) {
+			Worker w = this.workers.get(i); 
+			System.out.println(); 
+			for (int j = 0; j < this.jobs.size(); j++) {  
 				this.costMatrix[i][j] = this.jobs.get(j).getStandardProcessingDurations().
 						get(w.getCpuInfo().getFamilyName() + "-" + w.getCpuInfo().getDenomination() + "-" + w.getCpuInfo().getNumberOfCores());
-				System.out.print(this.costMatrix[i][j]);
+				System.out.print(this.costMatrix[i][j]); 
 				System.out.print("-");
 				
 			}
@@ -43,7 +44,7 @@ public class JobScheduler {
 	public Population getPopulationInitial() {  
 		/**  **/
 		Population population = new Population(this.workers, this.jobs);
-		int[] divs = new int[] { 5, 8, 14, 17, 22, 28}; 
+		int[] divs = new int[] {5, 8, 14, 17, 22, 28}; 
 		
 		int lastLimit = 0; 
 		for (int i = 0; i < divs.length; i++) { 
@@ -64,13 +65,12 @@ public class JobScheduler {
 		return population; 
 	}
 	
-	//5553//5596//5633 
-	//5764 
-	//5958//5952
+	//2169
 	public void startGeneticAlg(Population p) {
 		System.out.println("Taille de la population initiale: "+p.solutions.size());
 		int conv = 0;
-		while(conv<8000) {
+		SingleSolution solutionFinal = null; 
+		while(conv<100) {
 			//calculate score// 
 			System.out.println("Taille de la population: "+p.solutions.size());
 			double scores [] = p.getScorePopulation();
@@ -103,33 +103,39 @@ public class JobScheduler {
 				population.addSolution(p1p);
 				oneSolution = true;
 			}
+			
+			
 			if((score2<scoreP1 || score2<scoreP2) && (score2!=scoreP1 && score2 !=scoreP2)) {
 				System.out.println("add enfant 2 ");
-				// Si le dernier parent était déjà enlevé
-				if(oneSolution) {
-					population.getSolutions().remove(population.getSolutions().size()-2); 
-				}else { 
-					population.getSolutions().remove(population.getSolutions().size()-1);
-				}
-				population.addSolution(p2p);
-				oneSolution = true; 
-			}
-			if(!oneSolution) {
-				conv++; 
-			}else {
-				conv=0;
+				// Si le dernier parent était déjà enlevé //
+				if(oneSolution) {   
+					population.getSolutions().remove(population.getSolutions().size()-2);  
+				}else {  
+					population.getSolutions().remove(population.getSolutions().size()-1); 
+				} 
+				population.addSolution(p2p); 
+				oneSolution = true;  
+			} 
+			
+			if(!oneSolution) { 
+				conv++;  
+			}else { 
+				conv=0; 
 			}
 			
+			population.sortScorePopulation();
 			p = population.clone();
-			
+			solutionFinal = population.getSolutions().get(0);
+						
 
 			System.out.println("Score parent 1: "+scoreP1);
 			System.out.println("Score parent 2: "+scoreP2);
 			System.out.println("Score Enfant 1: "+score1);
 			System.out.println("Score Enfant 2: "+score2);
-
-			
 		}
+		System.out.println("Solution finale ");
+		solutionFinal.showSolution2(this.workers);
+		System.out.print(solutionFinal.getScore(this.workers));;
 	}
 	 
 
