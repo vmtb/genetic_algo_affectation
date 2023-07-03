@@ -111,16 +111,16 @@ public class SingleSolution implements Cloneable{
 				}  
 			} 
 			ssworkers[i] = tempGene;  
-		}
-		
-		double max = ssworkers[0];
-		for (int i = 0; i < ssworkers.length; i++) {
-			//System.out.print(ssworkers[i]+" -" );
-			if(ssworkers[i]>max) {
-				max =ssworkers[i];
-			}
-		}  
-		score = max; 
+		} 
+		 
+		double max = ssworkers[0]; 
+		for (int i = 0; i < ssworkers.length; i++) { 
+			//System.out.print(ssworkers[i]+" -" ); 
+			if(ssworkers[i]>max) { 
+				max =ssworkers[i]; 
+			} 
+		}   
+		score = max;  
 		
 //		for (int i = 0; i < this.solution.length; i++) {
 //			int workerVal = this.solution[i]; 

@@ -65,12 +65,17 @@ public class JobScheduler {
 		return population; 
 	}
 	
-	//2169
+	/**
+	 * 9- 2169
+	 * 18 - 3675
+	 * 27 - 5148
+	 * @param p
+	 */
 	public void startGeneticAlg(Population p) {
 		System.out.println("Taille de la population initiale: "+p.solutions.size());
 		int conv = 0;
 		SingleSolution solutionFinal = null; 
-		while(conv<100) {
+		while(conv<1000) {
 			//calculate score// 
 			System.out.println("Taille de la population: "+p.solutions.size());
 			double scores [] = p.getScorePopulation();
@@ -143,3 +148,65 @@ public class JobScheduler {
 	
 	
 }
+
+//Job 1 =====>  Worker 5  ====> (2169.0) 
+//Job 2 =====>  Worker 4  ====> (833.0) 
+//Job 3 =====>  Worker 4  ====> (765.0) 
+//Job 4 =====>  Worker 4  ====> (337.0) 
+//Job 5 =====>  Worker 3  ====> (427.0) 
+//Job 6 =====>  Worker 3  ====> (803.0) 
+//Job 7 =====>  Worker 1  ====> (1029.0) 
+//Job 8 =====>  Worker 3  ====> (324.0) 
+//Job 9 =====>  Worker 2  ====> (885.0)
+//2169.0 ------- 0h36'09s (02'20s)
+
+//Job 1 =====>  Worker 5  ====> (2169.0) 
+//Job 2 =====>  Worker 4  ====> (833.0) 
+//Job 3 =====>  Worker 4  ====> (765.0) 
+//Job 4 =====>  Worker 1  ====> (1063.0) 
+//Job 5 =====>  Worker 2  ====> (1342.0) 
+//Job 6 =====>  Worker 5  ====> (414.0) 
+//Job 7 =====>  Worker 2  ====> (694.0) 
+//Job 8 =====>  Worker 2  ====> (518.0) 
+//Job 9 =====>  Worker 1  ====> (1520.0) 
+//Job 10 =====>  Worker 3  ====> (3261.0) 
+//Job 11 =====>  Worker 4  ====> (833.0) 
+//Job 12 =====>  Worker 4  ====> (765.0) 
+//Job 13 =====>  Worker 5  ====> (289.0) 
+//Job 14 =====>  Worker 5  ====> (287.0) 
+//Job 15 =====>  Worker 4  ====> (479.0) 
+//Job 16 =====>  Worker 5  ====> (255.0) 
+//Job 17 =====>  Worker 5  ====> (199.0) 
+//Job 18 =====>  Worker 2  ====> (885.0)
+//3675.0 ------- 1h1'15s (07'55s)
+
+
+//Job 1 =====>  Worker 5  ====> (2169.0)
+//Job 2 =====>  Worker 4  ====> (833.0) 
+//Job 3 =====>  Worker 5  ====> (675.0) 
+//Job 4 =====>  Worker 5  ====> (289.0) 
+//Job 5 =====>  Worker 5  ====> (287.0) 
+//Job 6 =====>  Worker 5  ====> (414.0) 
+//Job 7 =====>  Worker 4  ====> (293.0) 
+//Job 8 =====>  Worker 5  ====> (199.0) 
+//Job 9 =====>  Worker 3  ====> (668.0) 
+//Job 10 =====>  Worker 2  ====> (4004.0) 
+//Job 11 =====>  Worker 3  ====> (1227.0) 
+//Job 12 =====>  Worker 4  ====> (765.0) 
+//Job 13 =====>  Worker 3  ====> (423.0) 
+//Job 14 =====>  Worker 5  ====> (287.0) 
+//Job 15 =====>  Worker 5  ====> (414.0) 
+//Job 16 =====>  Worker 1  ====> (1029.0) 
+//Job 17 =====>  Worker 3  ====> (324.0) 
+//Job 18 =====>  Worker 1  ====> (1520.0) 
+//Job 19 =====>  Worker 4  ====> (2380.0) 
+//Job 20 =====>  Worker 3  ====> (1227.0) 
+//Job 21 =====>  Worker 4  ====> (765.0) 
+//Job 22 =====>  Worker 3  ====> (423.0) 
+//Job 23 =====>  Worker 3  ====> (427.0) 
+//Job 24 =====>  Worker 5  ====> (414.0) 
+//Job 25 =====>  Worker 1  ====> (1029.0) 
+//Job 26 =====>  Worker 3  ====> (324.0) 
+//Job 27 =====>  Worker 2  ====> (885.0)
+//5148.0 =====> 1h25'48s (20'46)
+
