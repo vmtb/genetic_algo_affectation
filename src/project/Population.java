@@ -9,12 +9,12 @@ import java.util.Random;
 
 public class Population  implements Cloneable {
 	
-	protected ArrayList<SingleSolution> solutions = new ArrayList<SingleSolution>();  //Ensemble de solutions
+	protected ArrayList<Solution> solutions = new ArrayList<Solution>();  //Ensemble de solutions
 	protected double scores [];
 	protected ArrayList<Worker> workers; 
 	protected ArrayList<Job> jobs; 
-	protected SingleSolution parent1; 
-	protected SingleSolution parent2;  
+	protected Solution parent1; 
+	protected Solution parent2;  
 	
 	public Population(ArrayList<Worker> workers, ArrayList<Job> jobs) {
 		this.workers = workers;
@@ -22,16 +22,16 @@ public class Population  implements Cloneable {
 	}
 	
 	//Gettter et Setter de solutions
-	public ArrayList<SingleSolution> getSolutions() {
+	public ArrayList<Solution> getSolutions() {
 		return solutions;
 	}
 	
-	public void setSolutions(ArrayList<SingleSolution> solutions) {
+	public void setSolutions(ArrayList<Solution> solutions) {
 		this.solutions = solutions;
 	}
 	
 	
-	public void addSolution(SingleSolution solution) { 
+	public void addSolution(Solution solution) { 
 		this.solutions.add(solution);
 	}
 
@@ -54,7 +54,7 @@ public class Population  implements Cloneable {
 		for (int i = 0; i < scores.length; i++) {
 			scores[i] = this.solutions.get(i).getScore(this.workers);
 			//this.solutions.get(i).showSolution();
-			System.out.println("Pop. initiale score "+i+": "+scores[i]);
+			System.out.println("Pop. initiale score parent "+(i+1)+": "+scores[i]);
 		}
 		this.scores = scores;
 		return scores;
@@ -62,7 +62,7 @@ public class Population  implements Cloneable {
 	 
 	 
 	 public void sortScorePopulation() {
-		 ArrayList<SingleSolution> solutions = this.solutions; 
+		 ArrayList<Solution> solutions = this.solutions; 
 		 for (int i = 0; i < this.scores.length; i++) {
 			double min = this.scores[i]; 
 			int pos = i; 
@@ -74,7 +74,7 @@ public class Population  implements Cloneable {
 			}
 			this.scores[pos] = this.scores[i];
 			this.scores[i] = min; 
-			SingleSolution s = solutions.get(i);
+			Solution s = solutions.get(i);
 			solutions.set(i, solutions.get(pos)); 
 			solutions.set(pos, s);
 		}
@@ -82,13 +82,16 @@ public class Population  implements Cloneable {
 	 }
 	 
 	 public void makeSelection() {
+		 System.out.println("------ result selection ------ ");
 		 this.parent1 = this.solutions.get(0).clone();
 		 this.parent2 = this.solutions.get(1).clone();
+		 System.out.println("Parent 1: "+this.parent1.getScore(this.workers));
+		 System.out.println("Parent 2: "+this.parent2.getScore(this.workers));
 	 }
 	 
 	 public void doCrossOver() {  
 		int c = (new Random()).nextInt(this.parent1.solution.length);
-		System.out.println("------ start crossover ------ "+c);
+		System.out.println("------ result crossover ------ ");
 		int s1[] = this.parent1.solution.clone(); 
 		int s2[] = this.parent2.solution.clone(); 
 		for (int i = c; i < this.parent1.solution.length; i++) {
@@ -107,15 +110,15 @@ public class Population  implements Cloneable {
 		}
 		
 		this.parent1.setSolution(s1);
-		this.parent2.setSolution(s2);
-		System.out.println("------ result crossover ------ ");
+		this.parent2.setSolution(s2); 
+		
 		System.out.println("Parent 1: "+this.parent1.getScore(this.workers));
 		System.out.println("Parent 2: "+this.parent2.getScore(this.workers));
 	 }
 
 	 
 	 public void doMutation() {  
-		System.out.println("------ start mutation ------ ");
+		System.out.println("------ result mutation ------ ");
 		
 		int s1[] = this.parent1.getSolution() ; 
 		int s2[] = this.parent2.getSolution() ; 
@@ -137,12 +140,10 @@ public class Population  implements Cloneable {
 		int tempS2m = s2[m]; 
 		s2p[m] = s2[m+1];
 		s2p[m+1] = tempS2m;  
-		if(changeRespectsConstrains(s2p)) {
-			System.out.println("Mut: ");
+		if(changeRespectsConstrains(s2p)) { 
 			this.parent2.setSolution(s2p); 
-		}
+		} 
 		
-		System.out.println("------ result mutation ------ ");
 		System.out.println("Parent 1: "+this.parent1.getScore(this.workers));
 		System.out.println("Parent 2: "+this.parent2.getScore(this.workers));
 	 }

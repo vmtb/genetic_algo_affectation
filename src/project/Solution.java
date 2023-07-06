@@ -3,30 +3,23 @@ package project;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SingleSolution implements Cloneable{
+public class Solution implements Cloneable{
 	ArrayList<Job> jobs = new ArrayList<Job>();
 	double costMatrix [][];
 	int solution [];
 	int NJ = 0; 
 	int NW = 0;
 	//une solution ==> [16, 8, 8, 2, 4, 2, 4, 16]
-	public ArrayList<Job> getJobs() {
-		return jobs;
+
+
+	public Solution(double[][] costMatrix) { 
+		this.costMatrix = costMatrix;
+		this.NJ = this.costMatrix[0].length; 
+		this.NW = this.costMatrix.length;
+		this.solution = new int[NJ]; //nbre de jobs 
 	}
 
-	public void setJobs(ArrayList<Job> jobs) {
-		this.jobs = jobs;
-	}
-
-	public int[] getSolution() {
-		return solution;
-	}
-
-	public void setSolution(int[] solution) {
-		this.solution = solution;
-	}
-	
-	protected void parseInitialSolution() {
+	protected void reconstituteSolution() {
 		for (int i = 0; i < this.jobs.size(); i++) {
 			Job job = this.jobs.get(i); 
 			int jobIndex = job.ID-1; 
@@ -35,42 +28,31 @@ public class SingleSolution implements Cloneable{
 			this.solution[job.ID-1] = val;
 		}
 	}
-	
-	
-
-	public SingleSolution(double[][] costMatrix) { 
-		this.costMatrix = costMatrix;
-		this.NJ = this.costMatrix[0].length; 
-		this.NW = this.costMatrix.length;
-		this.solution = new int[NJ]; //nbre de jobs 
-	}
+	 
 	
 	public void addJob(Job j) {
 		if(!this.jobs.contains(j)) { 
 			this.jobs.add(j);
-			parseInitialSolution();
+			reconstituteSolution();
 		}
 	}
 	
 	public void showSolution() {
 		
 		for (int i = 0; i < this.jobs.size(); i++) {
-			Job job = this.jobs.get(i);
-			System.out.println();
-			System.out.print("Job "+(job.ID)+" =====>  Worker "+job.assignedWorker.ID+"  ====> ("+this.costMatrix[job.assignedWorker.ID-1][job.ID-1]+")");
+			Job job = this.jobs.get(i); 
 			
 			int jobIndex = job.ID-1; 
-			int workerIndex = job.assignedWorker.ID-1;
-			System.out.println();
+			int workerIndex = job.assignedWorker.ID-1; 
 			int val = job.assignedWorker.getBase10Name(); 
-			// the last worker has pow index 0  
-			System.out.println();
-			System.out.println("Value ==> "+val); 
+			
+			System.out.println("Job "+(job.ID)+" =====>  Worker "+job.assignedWorker.ID+" ("+val+")  ====> ("+this.costMatrix[job.assignedWorker.ID-1][job.ID-1]+")"); 
 		}
 	}
 
 	public void showSolution2(ArrayList<Worker> workers) {
-		
+
+		System.out.println();
 		for (int i = 0; i < this.solution.length; i++) {
 			Job job = null;
 			for (int j = 0; j < this.jobs.size(); j++) {
@@ -89,11 +71,8 @@ public class SingleSolution implements Cloneable{
 			} 
 			
 			job.setAssignedWorker(worker);
-			System.out.println();
-			System.out.print("Job "+(job.ID)+" =====>  Worker "+job.assignedWorker.ID+"  ====> ("+this.costMatrix[job.assignedWorker.ID-1][job.ID-1]+")");
-			 
-			System.out.println(); 
-			// the last worker has pow index 0   
+			System.out.print("// Job "+(job.ID)+" =====>  Worker "+job.assignedWorker.ID+"  ====> ("+this.costMatrix[job.assignedWorker.ID-1][job.ID-1]+")");
+			System.out.println();  
 		}
 	}
 	
@@ -115,9 +94,9 @@ public class SingleSolution implements Cloneable{
 		 
 		double max = ssworkers[0]; 
 		for (int i = 0; i < ssworkers.length; i++) { 
-			//System.out.print(ssworkers[i]+" -" ); 
+			// System.out.print(ssworkers[i]+" -" ); 
 			if(ssworkers[i]>max) { 
-				max =ssworkers[i]; 
+				max = ssworkers[i]; 
 			} 
 		}   
 		score = max;  
@@ -151,9 +130,9 @@ public class SingleSolution implements Cloneable{
 	}
 	
     @Override
-    public SingleSolution clone() {
+    public Solution clone() {
         try {
-        	SingleSolution clonedPopulation = (SingleSolution) super.clone();
+        	Solution clonedPopulation = (Solution) super.clone();
             clonedPopulation.solution = this.solution;
             return clonedPopulation;
         } catch (CloneNotSupportedException e) {
@@ -161,6 +140,23 @@ public class SingleSolution implements Cloneable{
             return null;
         }
     }
+    
+    
+	public ArrayList<Job> getJobs() {
+		return jobs;
+	}
+
+	public void setJobs(ArrayList<Job> jobs) {
+		this.jobs = jobs;
+	}
+
+	public int[] getSolution() {
+		return solution;
+	}
+
+	public void setSolution(int[] solution) {
+		this.solution = solution;
+	}
 	
 	
 	

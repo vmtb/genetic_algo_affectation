@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,18 +23,29 @@ public class Main {
 		System.out.println("Start...");
 		
 		try {
-			ArrayList<Job> jobs = getJobs();
+			ArrayList<Job> jobs = getJobs("1");
 			ArrayList<Worker> wksArrayList = getWorkers();
+			
 			JobScheduler jobScheduler = new JobScheduler(jobs, wksArrayList);
- 
+			
+			//Get initial population
 			Population population = jobScheduler.getPopulationInitial(); 
 			
 			// Planification 
-			jobScheduler.startGeneticAlg(population);
+			Solution solution = jobScheduler.startGeneticAlg(population, 1000);
 			
 			// Exécution 
 			
+
+			//Display results  
+			System.out.print("Solution finale ");
+			solution.showSolution2(wksArrayList);
+			double makespan = solution.getScore(wksArrayList); 
+			System.out.println();
 			
+	        System.out.println("Execution time of Greedys: " + jobScheduler.getExecutionTimeGreedy() + " milliseconds");
+	        System.out.println("Execution time of Planification: " + jobScheduler.getExecutionTimePlanification() + " milliseconds");
+	        System.out.println("MakeSpan "+makespan+"' ==> " + convertSecondToHMS((long) makespan) + " milliseconds");
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -58,12 +71,17 @@ public class Main {
 	}
 	
 	
-	public static ArrayList<Job> getJobs() {
+	/**
+	 * 
+	 * @param type is a string between "1", "2", "3" for respectively 9, 18 and 27 jobs
+	 * @return
+	 */
+	public static ArrayList<Job> getJobs(String type) {
 		/* job CSV file parsing */
 		ArrayList<Job> jobs = new ArrayList<Job>() ;
 		try
 		{
-			Reader csvData = new FileReader(".\\data\\jobs.csv");
+			Reader csvData = new FileReader(".\\data\\jobs"+type+".csv");
 			CSVParser parser;
 			
 			try
@@ -615,5 +633,16 @@ public class Main {
 	}
 	 
 	
+	
+	public static String convertSecondToHMS(long seconds) { 
 
+        // Calculate the hours, minutes, and remaining seconds
+        long hours = seconds / 3600;
+        long minutes = (seconds % 3600) / 60;
+        long remainingSeconds = seconds % 60;
+
+        // Format the time as HH:mm:ss
+        String formattedTime = String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds);
+        return formattedTime;
+	}
 }

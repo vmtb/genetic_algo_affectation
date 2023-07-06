@@ -53,19 +53,10 @@ public class GreedyAlgo {
 	}
 	
 	
-	public SingleSolution greedyIteration() {
+	public Solution greedyIteration() {
 		
 		double[][]  costMatrixSimul = cloneCostMatrix(); 
-		SingleSolution singleSolution = new SingleSolution(this.costMatrix);
-
-
-		System.out.println("workers");  
-		System.out.println(this.workersClasses.get(0).size());
-		System.out.println(this.workersClasses.get(1).size());
-		System.out.println("jobs");            
-		System.out.println(this.jobClassesJobs.get(0).size());
-		System.out.println(this.jobClassesJobs.get(1).size());
-		
+		Solution singleSolution = new Solution(this.costMatrix); 
 		
 		
 		for (int k = 0; k < 2; k++) { 
@@ -105,7 +96,7 @@ public class GreedyAlgo {
 					}
 				}
 				
-				System.out.println("For JOB "+job.ID);
+				System.out.print(job.ID+"-");
 				if(currentIndex>=0) {
 					Worker worker = wksArrayList.get(currentIndex); 
 					job.setAssignedWorker(worker);				
@@ -114,19 +105,17 @@ public class GreedyAlgo {
 					
 					for (int i = 0; i < costMatrix[0].length; i++) {  
 						costMatrixSimul[worker.ID-1][i] = costMatrixSimul[worker.ID-1][i]+costMatrixSimul[worker.ID-1][job.ID-1] ;
-						
-						// System.out.println(costMatrixSimul[worker.ID-1][i]);
 					}
 					
 					
 					//wksArrayList.remove(currentIndex); 
 					//wksArrayListRest.add(worker);	
 					
-					if(wksArrayList.size()==0) {
-						wksArrayList.addAll(wksArrayListRest);
-						wksArrayListRest.clear();
-						wksArrayList = sortWorkers(wksArrayList);						
-					}
+					//	if(wksArrayList.size()==0) {
+					//		wksArrayList.addAll(wksArrayListRest);
+					//		wksArrayListRest.clear();
+					//		wksArrayList = sortWorkers(wksArrayList);						
+					//	}
 				} else { 
 					System.out.println("Not found "+wksArrayList.size());
 					System.out.println("Not found "+wksArrayList.size());
@@ -134,6 +123,7 @@ public class GreedyAlgo {
 				} 
 			}   
 		} 
+		System.out.println();
 		singleSolution.showSolution();
 		return singleSolution;  
 	}
